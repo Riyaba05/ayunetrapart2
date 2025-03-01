@@ -22,7 +22,7 @@ const NotFound = () => {
         description="The page you're looking for doesn't exist. Return to Ayunetra's homepage for AI-powered health assistance."
       />
       <Head>
-        <meta httpEquiv="refresh" content="10;https://ayunetra.com/" />
+        <meta httpEquiv="refresh" content="10;http://localhost:3000" />
       </Head>
       <Container maxW="5xl" p={{ base: 5, md: 10 }} h="100vh" display="flex" alignItems="center">
         <Box

@@ -41,7 +41,7 @@ export default function Home() {
                 alt: "Ayunetra Healthcare Assistant",
               },
             ],
-            site_name: "ayunetra.com",
+            site_name: "ayunetra",
             type: "website",
           }}
         />
@@ -130,8 +130,8 @@ export default function Home() {
               w={"full"}
             >
               <Blob
-                w={"150%"}
-                h={"150%"}
+                w={"100%"}
+                h={"100%"}
                 position={"absolute"}
                 top={"-20%"}
                 left={0}
@@ -152,12 +152,13 @@ export default function Home() {
                   style={{ margin: "0 auto" }}
                   height={300}
                   src={"/healthcare-hero.jpg"}
+                  width={300}
                 />
               </Box>
             </Flex>
           </Stack>
 
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} py={20}>
+          {/* <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} py={20}>
             <Feature
               icon={"/icons/24-7.svg"}
               title={"24/7 Availability"}
@@ -173,12 +174,12 @@ export default function Home() {
               title={"Safe & Reliable"}
               text={"Trusted recommendations for common health concerns"}
             />
-          </SimpleGrid>
+          </SimpleGrid> */}
         </Container>
 
-        <CompanyReview />
+        {/* <CompanyReview /> */}
         <Faq />
-        <GridListWithCTA />
+        {/* <GridListWithCTA /> */}
         <Footer />
       </Layout>
     </>

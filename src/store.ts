@@ -1,4 +1,3 @@
-// import { Shikshacoin } from '@/components/shikshacoinpopup';
 import {create} from 'zustand'
 
 

@@ -14,18 +14,23 @@ import {
 const articles = [
   {
     id: 1,
-    title: "Is it true that Shiksha Finder is and will be free forever?",
-    content: `Yes! Shiksha Finder is and will always be free to use for finding the best educational platform as well as for registering your educational institutions. We believe that quality education should be accessible to all.`,
+    title: "What is Ayunetra?",
+    content: `Ayunetra is an intelligent healthcare assistant that provides personalized recommendations for common day-to-day health concerns. Powered by advanced AI technology, it helps users manage and find relief from various common ailments such as cough, fever, sneezing, acidity, and more.`,
   },
   {
     id: 2,
-    title: "What can I find on Shiksha Finder?",
-    content: `You can find schools, coaching centers, home tutors, skill classes, educational platforms, online tutors, and many more on Shiksha Finder.`,
+    title: "What health conditions does Ayunetra help with?",
+    content: `Ayunetra provides assistance for common daily health issues including fever, cough, sneezing, acidity, and many other common conditions. The system is available 24/7 and offers personalized health recommendations based on your specific symptoms.`,
   },
   {
     id: 3,
-    title: "If I encounter any problems using Shiksha Finder, how can I contact you?",
-    content: `We are open to solving your queries and problems. You can contact us on the contact us page or you can mail us at founder@shikshafinder.in.`,
+    title: "Is Ayunetra a replacement for professional medical advice?",
+    content: `No, Ayunetra is designed to provide general guidance for common, non-severe health conditions. It is not a replacement for professional medical advice. Always consult a healthcare provider for serious medical conditions.`,
+  },
+  {
+    id: 4,
+    title: "What technologies does Ayunetra use?",
+    content: `Ayunetra is built using Next.js as the frontend framework, with an AI/ML backend for intelligent recommendations. It features a modern UI/UX design and a real-time chat interface for seamless interaction.`,
   },
 ];
 

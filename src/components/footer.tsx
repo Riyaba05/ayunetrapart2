@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   VisuallyHidden,
 } from "@chakra-ui/react";
-import { FaInstagram, FaTwitter, FaYoutube, FaLinkedin } from "react-icons/fa";
+import { FaInstagram, FaTwitter, FaYoutube, FaLinkedin, FaGithub } from "react-icons/fa";
 import { ReactNode } from "react";
 
 const SocialButton = ({
@@ -57,28 +57,20 @@ export default function SmallCentered() {
         justify={"center"}
         align={"center"}
       >
-        {" "}
-        <img
-          src="https://wsrv.nl/?url=https://blobimageshikshafinder.blob.core.windows.net/shikshafinder/1713029348785_sfv1.png&h=300"
-          alt="Shiksha Finder Logo"
-          className="Container"
-          width={200}
-          height={300}
-          style={{ borderRadius: "3%" }}
-          loading="lazy"
-        ></img>
+        <Text fontSize="2xl" fontWeight="bold">Ayunetra</Text>
+        <Text textAlign="center" fontSize="sm">Your AI-Powered Health Assistant</Text>
         <Stack direction={"row"} spacing={6}>
-          <Box as={Link} href={"/aboutus"}>
-            AboutUs
+          <Box as={Link} href={"/about"}>
+            About
           </Box>
-          <Box as={Link} href={"/blogs"}>
-            Blog
+          <Box as={Link} href={"/features"}>
+            Features
           </Box>
-          <Box as={Link} href={"/contactus"}>
-            Contact Us
+          <Box as={Link} href={"/contact"}>
+            Contact
           </Box>
-          <Box as={Link} href={"https://platform.shikshafinder.com/"}>
-            Register my platform
+          <Box as={Link} href={"/docs"}>
+            Documentation
           </Box>
         </Stack>
       </Container>
@@ -97,70 +89,28 @@ export default function SmallCentered() {
           justify={{ base: "center", md: "space-between" }}
           align={{ base: "center", md: "center" }}
         >
-          <a href="https://platform.shikshafinder.com/gwsf">
-            {" "}
-            <Stack direction={"column"} mx={"auto"} align={"center"}>
-              <Text>© GWSF Ventures Pvt Ltd</Text>
-              <Text> Recognised by </Text>
-            </Stack>
-            <img
-              src="https://wsrv.nl/?url=https://blobimageshikshafinder.blob.core.windows.net/shikshafinder/images.png&h=76"
-              alt="startup india image shiksha finder"
-              style={{ borderRadius: "5%" }}
-              loading="lazy"
-            />
-          </a>
-          <Stack direction={"row"} spacing={6}>
-            <SocialButton
-              label={"Twitter"}
-              href={"https://twitter.com/shiksha_finder"}
-            >
+          <Stack direction={"column"} spacing={1} align={{ base: "center", md: "start" }}>
+            <Text>© {new Date().getFullYear()} Ayunetra. All rights reserved</Text>
+            <Text fontSize="sm">Built with ❤️ for better health assistance</Text>
+          </Stack>
+          <Stack direction={"row"} spacing={6} align="center">
+            <SocialButton label={"GitHub"} href={"https://github.com/yourusername/ayunetra"}>
+              <FaGithub />
+            </SocialButton>
+            <SocialButton label={"Twitter"} href={"#"}>
               <FaTwitter />
             </SocialButton>
-            <SocialButton
-              label={"YouTube"}
-              href={"https://youtu.be/SSIeK18tkjM?si=iZRLrFrp4YDvAjIO"}
-            >
-              <FaYoutube />
-            </SocialButton>
-            <SocialButton
-              label={"Instagram"}
-              href={"https://www.instagram.com/shikshafinder/"}
-            >
-              <FaInstagram />
-            </SocialButton>
-            <SocialButton
-              label={"linkedin"}
-              href={"https://www.linkedin.com/company/shikshafinder"}
-            >
+            <SocialButton label={"LinkedIn"} href={"#"}>
               <FaLinkedin />
             </SocialButton>
-            <div>
-              <a href="https://platform.shikshafinder.com/termsofservice">
-                {" "}
-                <Text fontSize="xs" as="u">
-                  {" "}
-                  Terms Of Service
-                </Text>
-              </a>
-              &nbsp; <Text fontSize="xs">&</Text>
-              <a href="https://platform.shikshafinder.com/privacypolicy">
-                {" "}
-                <Text fontSize="xs" as="u">
-                  {" "}
-                  Privacy Policy
-                </Text>
-              </a>
-            </div>
+            <Stack direction="row" spacing={4} fontSize="xs">
+              <Link href="/terms">Terms of Service</Link>
+              <Text>|</Text>
+              <Link href="/privacy">Privacy Policy</Link>
+            </Stack>
           </Stack>
         </Container>
       </Box>
-      <Box
-        height={{
-          base: "50px",
-          md: "10px",
-        }}
-      ></Box>
     </Box>
   );
 }

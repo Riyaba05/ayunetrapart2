@@ -15,184 +15,222 @@ import {
   Text,
   Icon,
   Divider,
+  Box,
 } from "@chakra-ui/react";
 import supabase from "../../supabase";
 import { useForm } from "react-hook-form";
 import { useToast } from "@chakra-ui/react";
-import { GoLocation } from "react-icons/go";
-import { BsPhone } from "react-icons/bs";
-import { HiOutlineMail } from "react-icons/hi";
+import { Heart, MapPin, Phone, Mail, MessageCircle } from "lucide-react";
+import { NextSeo } from "next-seo";
 
 const contactOptions = [
   {
-    label: "Address",
-    value: "7518/gayatrinagar/Bhavanagar/Gujrat",
-    icon: GoLocation,
+    label: "Visit Us",
+    value: "123 Healthcare Avenue, Medical District, NY 10001",
+    icon: MapPin,
   },
   {
-    label: "PHONE NUMBER",
-    value: "+91 7984140706",
-    icon: BsPhone,
+    label: "Call Us",
+    value: "+1 (888) AYUNETRA",
+    icon: Phone,
   },
   {
-    label: "EMAIL",
-    value: "ceo@shikshafinder.com",
-    icon: HiOutlineMail,
+    label: "Email Us",
+    value: "care@ayunetra.com",
+    icon: Mail,
   },
 ];
 
 const Contact = () => {
   const form = useForm();
   const toast = useToast();
-  const { register, handleSubmit } = form;
+  const { register, handleSubmit, reset } = form;
+
   const onSubmit = async (data: any) => {
     const { error } = await supabase.from("contactus").insert([{ ...data }]);
     if (error) {
       toast({
-        title: "Please sign up or login.",
-        description: "Please Signup/Login.",
+        title: "Authentication Required",
+        description: "Please sign in or create an account to send us a message.",
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
     } else {
-      handleSubmitt();
+      handleSubmitSuccess();
+      reset();
     }
   };
 
-  const handleSubmitt = () => {
+  const handleSubmitSuccess = () => {
     toast({
-      title: "Thank you for your feedback 👍",
-      description:
-        "Your feedback is important to us. We will get back to you soon.",
+      title: "Message Received",
+      description: "Thank you for reaching out. Our healthcare team will respond to you shortly.",
       status: "success",
-      duration: 3000,
+      duration: 5000,
       isClosable: true,
     });
   };
+
   return (
-    <Container maxW="7xl" py={10} px={{ base: 5, md: 8 }}>
-      <Stack spacing={10}>
-        <Flex align="center" justify="center" direction="column">
-          <Heading fontSize="4xl" mb={2}>
-            Contact Us
-          </Heading>
-          <Text fontSize="md" textAlign="center">
-            We are here to solve every issue you face 😊
-          </Text>
-        </Flex>
-        <Stack
-          spacing={{ base: 6, md: 0 }}
-          direction={{ base: "column", md: "row" }}
-          justify="space-between"
-        >
-          {contactOptions.map((option, index) => (
-            <Fragment key={index}>
-              <Stack
-                spacing={3}
-                direction="column"
-                justify="center"
-                alignItems="center"
-                px={3}
-              >
-                <Icon as={option.icon} w={10} h={10} color="green.400" />
-                <Text fontSize="lg" fontWeight="semibold">
-                  {option.label}
-                </Text>
-                <Text fontSize="md" textAlign="center">
-                  {option.value}
-                </Text>
-              </Stack>
-              {contactOptions.length - 1 !== index && (
-                <Flex>
-                  <Divider orientation="vertical" />
-                </Flex>
-              )}
-            </Fragment>
-          ))}
-        </Stack>
-        <VStack
-          as="form"
-          spacing={8}
-          w="100%"
-          bg={useColorModeValue("white", "gray.700")}
-          rounded="lg"
-          boxShadow="lg"
-          p={{ base: 5, sm: 10 }}
-        >
-          <VStack spacing={4} w="100%">
+    <>
+      <NextSeo
+        title="Contact Ayunetra - Healthcare Support"
+        description="Get in touch with Ayunetra's healthcare support team for any questions about our AI-powered health assistance."
+      />
+      <Container maxW="7xl" py={10} px={{ base: 5, md: 8 }}>
+        <Stack spacing={10}>
+          <Flex align="center" justify="center" direction="column">
+            <Flex align="center" gap={3} mb={4}>
+              <Icon as={Heart} w={8} h={8} color="blue.500" />
+              <Heading fontSize="4xl">Contact Us</Heading>
+            </Flex>
+            <Text fontSize="lg" color="gray.600" textAlign="center" maxW="2xl">
+              Have questions about our AI health assistant? Our dedicated healthcare support team is here to help you 24/7.
+            </Text>
+          </Flex>
+
+          <Box
+            bg={useColorModeValue("white", "gray.800")}
+            rounded="xl"
+            shadow="lg"
+            p={8}
+          >
             <Stack
-              w="100%"
-              spacing={3}
+              spacing={{ base: 8, md: 0 }}
               direction={{ base: "column", md: "row" }}
+              justify="space-between"
+              mb={8}
             >
-              <FormControl id="name">
-                <FormLabel>Name</FormLabel>
-                <Input
-                  {...register("Name", {
-                    required: true,
-                  })}
-                  name="Name"
-                  type="text"
-                  placeholder="Bahubali"
-                  rounded="md"
-                />
-              </FormControl>
-              <FormControl id="email">
-                <FormLabel>Email</FormLabel>
-                <Input
-                  {...register("Email", {
-                    required: true,
-                  })}
-                  name="Email"
-                  type="email"
-                  placeholder="test@test.com"
-                  rounded="md"
-                />
-              </FormControl>
+              {contactOptions.map((option, index) => (
+                <Fragment key={index}>
+                  <Stack
+                    spacing={4}
+                    direction="column"
+                    justify="center"
+                    alignItems="center"
+                    px={4}
+                  >
+                    <Icon as={option.icon} w={6} h={6} color="blue.500" />
+                    <Text fontSize="lg" fontWeight="semibold" color="gray.700">
+                      {option.label}
+                    </Text>
+                    <Text fontSize="md" textAlign="center" color="gray.600">
+                      {option.value}
+                    </Text>
+                  </Stack>
+                  {contactOptions.length - 1 !== index && (
+                    <Divider orientation="vertical" display={{ base: "none", md: "flex" }} />
+                  )}
+                </Fragment>
+              ))}
             </Stack>
-            <FormControl id="subject">
-              <FormLabel>Subject</FormLabel>
-              <Input
-                {...register("Subject", {
-                  required: true,
-                })}
-                name="Subject"
-                type="text"
-                placeholder="What is shiksha finder?"
-                rounded="md"
-              />
-            </FormControl>
-            <FormControl id="message">
-              <FormLabel>Message</FormLabel>
-              <Textarea
-                {...register("Message", {
-                  required: true,
-                })}
-                name="Message"
-                size="lg"
-                placeholder="Enter your message"
-                rounded="md"
-              />
-            </FormControl>
-          </VStack>
-          <VStack w="100%">
-            <Button
-              onClick={handleSubmit(onSubmit)}
-              bg="green.300"
-              color="white"
-              _hover={{
-                bg: "green.500",
-              }}
-              rounded="md"
-              w={{ base: "100%", md: "max-content" }}
+
+            <VStack
+              as="form"
+              spacing={6}
+              w="100%"
+              bg={useColorModeValue("gray.50", "gray.700")}
+              rounded="lg"
+              p={{ base: 5, sm: 8 }}
             >
-              Send Message
-            </Button>
-          </VStack>
-        </VStack>
-      </Stack>
-    </Container>
+              <VStack spacing={5} w="100%">
+                <Stack
+                  w="100%"
+                  spacing={4}
+                  direction={{ base: "column", md: "row" }}
+                >
+                  <FormControl id="name">
+                    <FormLabel>Full Name</FormLabel>
+                    <Input
+                      {...register("Name", {
+                        required: true,
+                      })}
+                      name="Name"
+                      type="text"
+                      placeholder="John Doe"
+                      bg="white"
+                      size="lg"
+                      _focus={{
+                        borderColor: "blue.400",
+                        boxShadow: "0 0 0 1px blue.400",
+                      }}
+                    />
+                  </FormControl>
+                  <FormControl id="email">
+                    <FormLabel>Email Address</FormLabel>
+                    <Input
+                      {...register("Email", {
+                        required: true,
+                      })}
+                      name="Email"
+                      type="email"
+                      placeholder="you@example.com"
+                      bg="white"
+                      size="lg"
+                      _focus={{
+                        borderColor: "blue.400",
+                        boxShadow: "0 0 0 1px blue.400",
+                      }}
+                    />
+                  </FormControl>
+                </Stack>
+                <FormControl id="subject">
+                  <FormLabel>Subject</FormLabel>
+                  <Input
+                    {...register("Subject", {
+                      required: true,
+                    })}
+                    name="Subject"
+                    type="text"
+                    placeholder="How can we help you?"
+                    bg="white"
+                    size="lg"
+                    _focus={{
+                      borderColor: "blue.400",
+                      boxShadow: "0 0 0 1px blue.400",
+                    }}
+                  />
+                </FormControl>
+                <FormControl id="message">
+                  <FormLabel>Message</FormLabel>
+                  <Textarea
+                    {...register("Message", {
+                      required: true,
+                    })}
+                    name="Message"
+                    placeholder="Please describe your question or concern in detail..."
+                    bg="white"
+                    size="lg"
+                    minH="150px"
+                    _focus={{
+                      borderColor: "blue.400",
+                      boxShadow: "0 0 0 1px blue.400",
+                    }}
+                  />
+                </FormControl>
+              </VStack>
+
+              <Button
+                onClick={handleSubmit(onSubmit)}
+                bg="blue.400"
+                color="white"
+                size="lg"
+                fontSize="md"
+                leftIcon={<Icon as={MessageCircle} />}
+                _hover={{
+                  bg: "blue.500",
+                }}
+                w={{ base: "100%", md: "auto" }}
+                px={8}
+              >
+                Send Message
+              </Button>
+            </VStack>
+          </Box>
+        </Stack>
+      </Container>
+    </>
   );
 };
 

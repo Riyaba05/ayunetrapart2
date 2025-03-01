@@ -16,26 +16,30 @@ import {
   useColorModeValue,
   Link,
   Center,
+  Icon,
+  VStack,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import {  ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useToast } from "@chakra-ui/react";
 import { FcGoogle } from "react-icons/fc";
+import { Heart } from "lucide-react";
+import { NextSeo } from "next-seo";
 
 export default function SignupCard() {
-  const router = useRouter(); // Initialize the router
-
+  const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const toast = useToast();
+
   const signUpNewUser = async () => {
     if (!email || !password || !firstName) {
       toast({
         title: "Error",
-        description: "Please fill all the fields",
+        description: "Please fill all the required fields",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -46,9 +50,8 @@ export default function SignupCard() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-
         options: {
-          emailRedirectTo: "https://shikshafinder.com/",
+          emailRedirectTo: "https://ayunetra.com/",
           data: {
             firstName,
             lastName,
@@ -72,131 +75,165 @@ export default function SignupCard() {
   };
 
   return (
-    <Flex
-      minH={"100vh"}
-      align={"center"}
-      justify={"center"}
-      bg={useColorModeValue("gray.50", "gray.800")}
-    >
-      <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
-        <Stack align={"center"}>
-        
-          <Heading fontSize={"4xl"} textAlign={"center"}>
-            Sign up
-          </Heading>
-          <Text fontSize={"lg"} color={"gray.600"}>
-            to enjoy all of our cool features ✌️
-          </Text>
-        </Stack>
-        <Link href="https://qgkjakomwapzuhvnrvgr.supabase.co/auth/v1/authorize?provider=google">
-          <Button w={"full"} variant={"outline"} leftIcon={<FcGoogle />} colorScheme="teal">
-            <Center>
-              <Text>Sign up with Google</Text>
-            </Center>
-          </Button>
-        </Link>
-        <Box
-          rounded={"lg"}
-          bg={useColorModeValue("white", "gray.700")}
-          boxShadow={"lg"}
-          p={8}
-        >
-          <Stack spacing={4}>
-            <HStack>
-              <Box>
-                <FormControl id="firstName" isRequired>
-                  <FormLabel>First Name</FormLabel>
-                  <Input
-                    type="text"
-                    name="firstName"
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="your first name"
-                  />
-                </FormControl>
-              </Box>
-              <Box>
-                <FormControl id="lastName">
-                  <FormLabel>Last Name</FormLabel>
-                  <Input
-                    name="lastName"
-                    type="text"
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="your last name"
-                  />
-                </FormControl>
-              </Box>
-            </HStack>
-            <FormControl id="email" isRequired>
-              <FormLabel>Email address</FormLabel>
-              <Input
-                type="email"
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@gmail.com"
-              />
-            </FormControl>
-            <FormControl id="password" isRequired>
-              <FormLabel>Password</FormLabel>
-              <InputGroup>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="must be at least 6 characters long"
-                />
-                <InputRightElement h={"full"}>
-                  <Button
-                    variant={"ghost"}
-                    onClick={() =>
-                      setShowPassword((showPassword) => !showPassword)
-                    }
-                  >
-                    {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-            <Stack spacing={10} pt={2}>
+    <>
+      <NextSeo
+        title="Sign Up for Ayunetra - Your Health Assistant"
+        description="Create your account to get personalized AI-powered health recommendations with Ayunetra"
+      />
+      <Flex
+        minH={"100vh"}
+        align={"center"}
+        justify={"center"}
+        bg={useColorModeValue("gray.50", "gray.800")}
+      >
+        <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
+          <Stack align={"center"} spacing={6}>
+            <Flex align="center" gap={3}>
+              <Icon as={Heart} w={8} h={8} color="blue.500" />
+              <Heading fontSize={"4xl"} textAlign={"center"}>
+                Join Ayunetra
+              </Heading>
+            </Flex>
+            <Text fontSize={"lg"} color={"gray.600"} textAlign="center">
+              Your journey to better health starts here 
+              <Text as="span" color="blue.500"> with personalized care</Text> 🏥
+            </Text>
+          </Stack>
+
+          <Box
+            rounded={"xl"}
+            bg={useColorModeValue("white", "gray.700")}
+            boxShadow={"xl"}
+            p={8}
+            border="1px"
+            borderColor="gray.100"
+          >
+            <VStack spacing={6}>
               <Button
-                onClick={signUpNewUser}
-                loadingText="Submitting"
+                w={"full"}
+                variant={"outline"}
+                leftIcon={<FcGoogle />}
+                colorScheme="blue"
                 size="lg"
-                bg={"blue.400"}
-                color={"white"}
+                onClick={() => {
+                  window.location.href = "https://qgkjakomwapzuhvnrvgr.supabase.co/auth/v1/authorize?provider=google";
+                }}
                 _hover={{
-                  bg: "blue.500",
+                  bg: "blue.50",
                 }}
               >
-                Sign up
+                <Center>
+                  <Text>Sign up with Google</Text>
+                </Center>
               </Button>
-            </Stack>
-            <Stack pt={6}>
-              <Text align={"center"}>
-                Already a user?{" "}
-                <Link
-                  href={"/login"}
-                  style={{ color: "blue.400", textDecoration: "underline" }}
+
+              <Flex align="center" gap={2} w="full">
+                <Box flex={1} h="1px" bg="gray.200" />
+                <Text color="gray.500">or</Text>
+                <Box flex={1} h="1px" bg="gray.200" />
+              </Flex>
+
+              <Stack spacing={4} w="full">
+                <HStack spacing={4}>
+                  <Box flex={1}>
+                    <FormControl id="firstName" isRequired>
+                      <FormLabel>First Name</FormLabel>
+                      <Input
+                        type="text"
+                        name="firstName"
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Enter your first name"
+                        size="lg"
+                      />
+                    </FormControl>
+                  </Box>
+                  <Box flex={1}>
+                    <FormControl id="lastName">
+                      <FormLabel>Last Name</FormLabel>
+                      <Input
+                        name="lastName"
+                        type="text"
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Enter your last name"
+                        size="lg"
+                      />
+                    </FormControl>
+                  </Box>
+                </HStack>
+
+                <FormControl id="email" isRequired>
+                  <FormLabel>Email address</FormLabel>
+                  <Input
+                    type="email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    size="lg"
+                  />
+                </FormControl>
+
+                <FormControl id="password" isRequired>
+                  <FormLabel>Password</FormLabel>
+                  <InputGroup size="lg">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Create a strong password"
+                    />
+                    <InputRightElement width="3rem">
+                      <Button
+                        h="1.75rem"
+                        size="sm"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+
+                <Button
+                  onClick={signUpNewUser}
+                  loadingText="Creating account..."
+                  size="lg"
+                  bg={"blue.400"}
+                  color={"white"}
+                  _hover={{
+                    bg: "blue.500",
+                  }}
+                  fontSize="md"
+                  mt={2}
                 >
-                  login
-                </Link>
-              </Text>
-            </Stack>
-          </Stack>
-        </Box>
-        <Text>
-          By continuing you agree to our{" "}
-          <Stack align={"center"} direction={"row"}>
-            <a
-              href="https://platform.shikshafinder.com/privacypolicy"
-              // style={{color: "blue"}}
-            >
-              <Text color={"blue.400"}>Privacy Policy</Text>
-            </a>{" "}
-           <Text>and</Text>{" "}
-            <a href="https://platform.shikshafinder.com/termsofservice">
-              <Text color={"blue.400"}>Terms of Service</Text>
-            </a>
-          </Stack>
-        </Text>
-      </Stack>
-    </Flex>
+                  Create Account
+                </Button>
+
+                <Text align={"center"} fontSize="sm">
+                  Already have an account?{" "}
+                  <Link
+                    href={"/login"}
+                    color={"blue.400"}
+                    _hover={{
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Sign in
+                  </Link>
+                </Text>
+              </Stack>
+            </VStack>
+          </Box>
+
+          <Text fontSize="sm" color="gray.500" textAlign="center">
+            By signing up, you agree to our{" "}
+            <Link href="/terms" color="blue.400">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" color="blue.400">
+              Privacy Policy
+            </Link>
+          </Text>
+        </Stack>
+      </Flex>
+    </>
   );
 }

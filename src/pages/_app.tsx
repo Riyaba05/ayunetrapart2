@@ -8,7 +8,7 @@ import AuthContextProvider from "@/context";
 import Head from "next/head";
 
 const inter = Inter({ subsets: ["latin"] });
-const supabaseUrl = "https://qgkjakomwapzuhvnrvgr.supabase.co";
+const supabaseUrl = "https://nsaylbnbmzsbmdrdnoor.supabase.co";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY ?? "";
 
 export default function App({

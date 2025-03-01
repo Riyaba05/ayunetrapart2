@@ -1,10 +1,10 @@
 import Link from "next/link";
 import {
-  FaSchool,
-  FaChalkboardTeacher,
-  FaPaintBrush,
-  FaGlobe,
-  FaWpforms,
+  FaHeartbeat,
+  FaUserMd,
+  FaInfoCircle,
+  FaQuestionCircle,
+  FaComments,
 } from "react-icons/fa";
 import ThemeButton from "@/components/ThemButton";
 import { Show } from "@chakra-ui/react";
@@ -63,7 +63,7 @@ export default function Navbar() {
               href={"/"}
               style={{ textDecoration: "none", display: "inline-block" }}
             >
-              ShikshaFinder
+              Ayunetra
             </Link>
           </Text>
 
@@ -245,97 +245,97 @@ const MobileNav = () => {
       >
         <Stack direction={"row"} justify="space-around" align="center">
           <Link
-            href={"/school"}
+            href={"/ailments"}
             style={{ textAlign: "center", textDecoration: "none" }}
           >
             <Flex direction="column" align="center">
-              <FaSchool
+              <FaHeartbeat
                 size={19}
                 color={
-                  useStore.getState().selectedIcon === "school"
+                  useStore.getState().selectedIcon === "ailments"
                     ? "blue"
                     : "currentColor"
                 }
-                onClick={() => handleClick("school")}
+                onClick={() => handleClick("ailments")}
               />
               <Text fontSize={"sm"} mt={1}>
-                Schools
+                Ailments
               </Text>
             </Flex>
           </Link>
           <Link
-            href={"/coaching"}
+            href={"/recommendations"}
             style={{ textAlign: "center", textDecoration: "none" }}
           >
             <Flex direction="column" align="center">
-              <FaChalkboardTeacher
+              <FaUserMd
                 size={19}
                 color={
-                  useStore.getState().selectedIcon === "coaching"
+                  useStore.getState().selectedIcon === "recommendations"
                     ? "blue"
                     : "currentColor"
                 }
-                onClick={() => handleClick("coaching")}
+                onClick={() => handleClick("recommendations")}
               />
               <Text fontSize={"sm"} mt={1}>
-                Coaching
+                Advice
               </Text>
             </Flex>
           </Link>
           <Link
-            href={"/onlineform"}
+            href={"/assistant"}
             style={{ textAlign: "center", textDecoration: "none" }}
           >
             <Flex direction="column" align="center">
-              <FaGlobe
+              <FaComments
                 size={19}
                 color={
-                  useStore.getState().selectedIcon === "online"
+                  useStore.getState().selectedIcon === "assistant"
                     ? "blue"
                     : "currentColor"
                 }
-                onClick={() => handleClick("online")}
+                onClick={() => handleClick("assistant")}
               />
               <Text fontSize={"sm"} mt={1}>
-                Online
+                Assistant
               </Text>
             </Flex>
           </Link>
           <Link
-            href={"/skillclass"}
+            href={"/how-it-works"}
             style={{ textAlign: "center", textDecoration: "none" }}
           >
             <Flex direction="column" align="center">
-              <FaPaintBrush
+              <FaQuestionCircle
                 size={19}
                 color={
-                  useStore.getState().selectedIcon === "skillclass"
+                  useStore.getState().selectedIcon === "how-it-works"
                     ? "blue"
                     : "currentColor"
                 }
-                onClick={() => handleClick("skillclass")}
+                onClick={() => handleClick("how-it-works")}
               />
               <Text fontSize={"sm"} mt={1}>
-                Skills
+                Help
               </Text>
             </Flex>
           </Link>
           <Link
-            href={"/exams"}
+            href={"/about"}
             style={{ textAlign: "center", textDecoration: "none" }}
           >
             <Flex direction="column" align="center">
-              <FaWpforms
+              <FaInfoCircle
                 size={19}
                 color={
-                  useStore.getState().selectedIcon === "exams"
+                  useStore.getState().selectedIcon === "about"
                     ? "blue"
                     : "currentColor"
                 }
-                onClick={() => handleClick("exams")}
+                onClick={() => handleClick("about")}
               />
               <Text fontSize={"sm"} mt={1}>
-                Exams
+                About
               </Text>
             </Flex>
           </Link>
@@ -354,46 +354,45 @@ interface NavItem {
 
 const NAV_ITEMS: Array<NavItem> = [
   {
-    label: "School & Coaching Classes",
+    label: "Health Services",
     children: [
       {
-        label: "Schools",
-        subLabel: "Choose the right school For the best future of yours",
-        href: "../school",
+        label: "Common Ailments",
+        subLabel: "Get help with daily health concerns",
+        href: "/ailments",
       },
       {
-        label: "Coaching classes",
-        subLabel: "Let's get Started!",
-        href: "../coaching",
+        label: "Health Recommendations",
+        subLabel: "Personalized health advice",
+        href: "/recommendations",
       },
     ],
   },
   {
-    label: "Skill classes & Online Platforms",
-    href: "../skillclass",
+    label: "Features",
     children: [
       {
-        label: "Skill Classes",
-        subLabel: "Learn what you Love",
-        href: "../skillclass",
+        label: "AI Assistant",
+        subLabel: "24/7 health guidance",
+        href: "/assistant",
       },
       {
-        label: "Online Platform",
-        subLabel: "Find Out The  Best!",
-        href: "../onlineform",
+        label: "Symptom Checker",
+        subLabel: "Check your symptoms",
+        href: "/symptoms",
       },
     ],
   },
   {
     label: "About Us",
-    href: "./aboutus",
+    href: "/about",
   },
   {
-    label: "Exams",
-    href: "./exams",
+    label: "How It Works",
+    href: "/how-it-works",
   },
   {
-    label: "Contact Us",
-    href: "/contactus",
+    label: "Contact",
+    href: "/contact",
   },
 ];

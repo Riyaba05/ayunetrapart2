@@ -17,53 +17,39 @@ import {
   Button,
   Icon,
   IconProps,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import Layout from "./Layout";
 import Image from "next/image";
-import { get } from "react-hook-form";
 
 export default function Home() {
   const { user } = useAuthContext();
-
-  // async function getStandard() {
-  //   fetch("/api/keydiffrence")
-  //     .then((response) => response.json())
-  //     .then((data) => console.log(data));
-  // }
-  // getStandard();
 
   return (
     <>
       <Layout>
         <NextSeo
-          title="Shiksha Finder"
-          description="Find Best educational institute for your child, Watch Demo lectures, Fill online admission form, Promote your educational platform"
+          title="Ayunetra - Your AI-Powered Health Assistant"
+          description="Get personalized health recommendations for common ailments like fever, cough, sneezing, and acidity with Ayunetra's AI-powered healthcare assistant."
           openGraph={{
             url: "/icon-192x192.png",
-            title: "Let's promote Quality of Education",
-            description: "Choose right educational platform for your child",
+            title: "Ayunetra - Intelligent Healthcare Assistant",
+            description: "Your 24/7 AI-powered health companion for personalized care recommendations",
             images: [
               {
                 url: "/icon-192x192.png",
-                alt: "Shiksha Finder == happy students",
+                alt: "Ayunetra Healthcare Assistant",
               },
             ],
-            site_name: "shikshafinder.com",
+            site_name: "ayunetra.com",
             type: "website",
           }}
         />
         <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta
-            name="google-site-verification"
-            content="x0ic1dcDO30kWVKAfCEqPcWGbjb6ZCvg75NpHKI_Ci0"
-          />
-          <meta
-            name="ShikshaFinder"
-            content="Shiksha Finder,Coaching classes in ,how to find best schools for your child?,what is the best way of marketing your educational platform?,schools near me ,skill classes near me"
-          />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
+            name="keywords"
+            content="healthcare assistant, AI health, medical recommendations, symptom checker, health advice, personalized healthcare"
           />
         </Head>
         <Container maxW={"7xl"}>
@@ -92,20 +78,15 @@ export default function Home() {
                     zIndex: -1,
                   }}
                 >
-                  Shiksha Finder
+                  Ayunetra
                 </Text>
                 <br />
                 <Text as={"span"} color={"blue.400"}>
-                  Explore the quality of education
+                  Your AI Health Assistant
                 </Text>
               </Heading>
-              <Text>
-                Here at Shiksha Finder, you can watch <b>Demo lectures</b> and
-                explore facilities of any school, coaching classes, or skill
-                classes. You can easily fill the online admission form of any
-                platform.
-                <br />
-                <b>Admission made simple!</b>
+              <Text color={"gray.600"} fontSize={"xl"}>
+                Get instant, personalized recommendations for common health concerns. Our AI-powered assistant helps you manage daily health issues like fever, cough, sneezing, and acidity - available 24/7, right at your fingertips.
               </Text>
               <Stack
                 spacing={{ base: 4, sm: 6 }}
@@ -121,26 +102,24 @@ export default function Home() {
                       fontWeight={"normal"}
                       px={6}
                       colorScheme={"blue"}
+                      bg={"blue.400"}
                       _hover={{ bg: "blue.500" }}
                     >
-                      Get started
+                      Start Your Health Journey
                     </Button>
                   </Link>
                 )}
-                <a
-                  href="https://platform.shikshafinder.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <Link href="/chatbot">
                   <Button
                     rounded={"full"}
                     size={"lg"}
                     fontWeight={"normal"}
                     px={6}
+                    leftIcon={<Icon name="chat" />}
                   >
-                    For Educational Platform
+                    Chat with Ayunetra
                   </Button>
-                </a>
+                </Link>
               </Stack>
             </Stack>
             <Flex
@@ -151,44 +130,87 @@ export default function Home() {
               w={"full"}
             >
               <Blob
-                w={"100%"}
-                h={"100%"}
+                w={"150%"}
+                h={"150%"}
                 position={"absolute"}
-                top={"-30%"}
+                top={"-20%"}
                 left={0}
                 zIndex={-1}
-                color={"blue.400"}
+                color={"blue.50"}
               />
-
               <Box
                 position={"relative"}
-                height={"auto"}
+                height={"300px"}
                 rounded={"2xl"}
                 boxShadow={"2xl"}
                 width={"full"}
                 overflow={"hidden"}
               >
                 <Image
-                  src="https://wsrv.nl/?url=https://blobimageshikshafinder.blob.core.windows.net/shikshafinder/sf.webp&w=600&h=300&mode=crop"
-                  alt="Shiksha Finder image"
-                  width={600}
+                  alt={"Ayunetra Hero Image"}
+                  objectFit={"cover"}
+                  style={{ margin: "0 auto" }}
                   height={300}
+                  src={"/healthcare-hero.jpg"}
                 />
               </Box>
             </Flex>
           </Stack>
-        </Container>
-        <CompanyReview />
-        <br />
-        <Faq />
-        <br />
-        <GridListWithCTA />
 
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} py={20}>
+            <Feature
+              icon={"/icons/24-7.svg"}
+              title={"24/7 Availability"}
+              text={"Access health recommendations anytime, anywhere"}
+            />
+            <Feature
+              icon={"/icons/ai.svg"}
+              title={"AI-Powered"}
+              text={"Get intelligent, personalized health guidance"}
+            />
+            <Feature
+              icon={"/icons/secure.svg"}
+              title={"Safe & Reliable"}
+              text={"Trusted recommendations for common health concerns"}
+            />
+          </SimpleGrid>
+        </Container>
+
+        <CompanyReview />
+        <Faq />
+        <GridListWithCTA />
         <Footer />
       </Layout>
     </>
   );
 }
+
+interface FeatureProps {
+  title: string;
+  text: string;
+  icon: string;
+}
+
+const Feature = ({ title, text, icon }: FeatureProps) => {
+  return (
+    <Stack align={"center"} textAlign={"center"}>
+      <Flex
+        w={16}
+        h={16}
+        align={"center"}
+        justify={"center"}
+        color={"white"}
+        rounded={"full"}
+        bg={"blue.400"}
+        mb={1}
+      >
+        <Image src={icon} alt={title} width={24} height={24} />
+      </Flex>
+      <Text fontWeight={600}>{title}</Text>
+      <Text color={"gray.600"}>{text}</Text>
+    </Stack>
+  );
+};
 
 const Blob = (props: IconProps) => {
   return (

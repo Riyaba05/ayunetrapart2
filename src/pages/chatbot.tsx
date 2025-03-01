@@ -3,7 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAuthContext } from "@/context";
 import { useRouter } from "next/router";
-// import { useAuthContext } from "@/context";
+import HospitalFinder from "@/components/hospital-finder";
 import Nouser from "@/components/Nouser";
 import {
   Box,
@@ -31,6 +31,9 @@ import {
   VStack,
   Spinner,
   Image,
+  Select,
+  Badge,
+  Tooltip,
 } from "@chakra-ui/react";
 import {
   AlertCircle,
@@ -42,8 +45,12 @@ import {
   Image as ImageIcon,
   X,
   Clock,
+  Heart,
+  Thermometer,
+  Stethoscope,
 } from "lucide-react";
 import supabase from "../../supabase";
+import { NextSeo } from "next-seo";
 
 const markdownComponents = {
   h1: (props: any) => (
@@ -76,6 +83,7 @@ interface ChatMessage {
   created_at: string;
   title: string;
   user_id: string;
+  symptom_category?: string;
 }
 
 interface ConversationMessage {
@@ -96,6 +104,17 @@ const Chatbot = () => {
   const { user } = useAuthContext();
   const [streamingMessage, setStreamingMessage] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [selectedSymptom, setSelectedSymptom] = useState("");
+  const [showHospitalFinder, setShowHospitalFinder] = useState(false);
+
+  const symptomCategories = [
+    { value: "fever", label: "Fever", icon: Thermometer },
+    { value: "cough", label: "Cough & Cold", icon: AlertCircle },
+    { value: "digestive", label: "Digestive Issues", icon: Stethoscope },
+    { value: "headache", label: "Headache", icon: AlertCircle },
+    { value: "general", label: "General Health", icon: Heart },
+  ];
+
   if (!user) {
     return <Nouser />;
   }
@@ -108,6 +127,23 @@ const Chatbot = () => {
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string>("");
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeSelectedImage = () => {
+    setSelectedImage(null);
+    setImagePreviewUrl("");
+  };
+
   async function saveResponse(messageText: string, responseText: string) {
     try {
       if (!user?.id) {
@@ -116,7 +152,7 @@ const Chatbot = () => {
       }
 
       const { data, error } = await supabase
-        .from("chat_history")
+        .from("chatbot")
         .insert([
           {
             message: messageText,
@@ -131,7 +167,6 @@ const Chatbot = () => {
         throw error;
       }
 
-      // Fetch updated history after successful save
       await getHistory();
     } catch (error) {
       console.error("Error saving response:", error);
@@ -144,10 +179,9 @@ const Chatbot = () => {
       if (!user?.id) return;
 
       const { data, error } = await supabase
-        .from("chat_history")
+        .from("chatbot")
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
@@ -172,23 +206,6 @@ const Chatbot = () => {
     error?: string;
   }
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const removeSelectedImage = () => {
-    setSelectedImage(null);
-    setImagePreviewUrl("");
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim() && !selectedImage) return;
@@ -211,7 +228,6 @@ const Chatbot = () => {
         setUploadingImage(false);
       }
 
-      // Add user message to conversation
       const userMessage: ConversationMessage = {
         role: "user",
         content: inputText,
@@ -228,6 +244,7 @@ const Chatbot = () => {
           msg: inputText,
           imageUrl: imageUrl,
           conversationHistory: currentConversation,
+          symptomCategory: selectedSymptom,
         }),
       });
 
@@ -274,7 +291,6 @@ const Chatbot = () => {
                   }
                 } catch (e) {
                   console.error("Error parsing chunk:", e);
-                  // Don't reject on parse error, continue processing
                   continue;
                 }
               }
@@ -293,9 +309,8 @@ const Chatbot = () => {
       });
 
       try {
-        // Wait for the complete response with a timeout
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("Response timeout")), 60000); // 60 second timeout
+          setTimeout(() => reject(new Error("Response timeout")), 60000);
         });
 
         const finalResponse = (await Promise.race([
@@ -303,7 +318,6 @@ const Chatbot = () => {
           timeoutPromise,
         ])) as string;
 
-        // After streaming is complete and we have the full response, update conversation and save
         const assistantMessage: ConversationMessage = {
           role: "assistant",
           content: finalResponse,
@@ -427,6 +441,10 @@ const Chatbot = () => {
                     timestamp: chat.created_at,
                   },
                 ]);
+                setSelectedSymptom(chat.symptom_category || "");
+                setInputText("");
+                setStreamingMessage("");
+                setIsStreaming(false);
                 onClose();
               }}
             >
@@ -507,267 +525,259 @@ const Chatbot = () => {
   }
 
   return (
-    <Grid
-      minH="100vh"
-      templateColumns={{ base: "1fr", md: "300px 1fr" }}
-      bg="gray.50"
-    >
-      {/* <a href="/scholarship">Scholarship</a> */}
-      {/* Sidebar - Hidden on mobile */}
-      <GridItem display={{ base: "none", md: "block" }}>
-        <ChatSidebarContent />
-      </GridItem>
-
-      {/* Mobile Drawer */}
-      <Drawer
-        isOpen={isOpen}
-        placement="left"
-        onClose={onClose}
-        size="full" // Make drawer full screen on mobile
-      >
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton size="lg" /> {/* Make close button bigger */}
-          <DrawerHeader borderBottomWidth="1px">Chat History</DrawerHeader>
-          <DrawerBody p={0}>
-            <ChatSidebarContent />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-
-      {/* Main Content */}
-      <GridItem>
-        <Container
-          maxW={{ base: "100%", md: "4xl" }}
-          py={{ base: 4, md: 8 }}
-          px={{ base: 4, md: 6 }}
+    <>
+      <NextSeo
+        title="Chat with Ayunetra - Your AI Health Assistant"
+        description="Get personalized health recommendations through an intelligent chat interface"
+      />
+      <Container maxW="full" h="100vh" p={0}>
+        <Grid
+          templateColumns={{ base: "1fr", md: "250px 1fr" }}
+          h="full"
+          gap={0}
         >
-          {/* Mobile Header with Menu and New Chat Buttons */}
-          <Flex
-            justify="space-between"
-            align="center"
-            mb={6}
-            display={{ base: "flex", md: "none" }}
-            gap={2}
+          <GridItem
+            bg="white"
+            borderRight="1px"
+            borderColor="gray.200"
+            display={{ base: isOpen ? "block" : "none", md: "block" }}
           >
-            <Button onClick={onOpen} colorScheme="blue" size="md">
-              <Icon as={Menu} />
-            </Button>
-            <Button
-              onClick={handleNewChat}
-              colorScheme="blue"
-              size="md"
-              leftIcon={<Icon as={Plus} />}
-            >
-              New Chat
-            </Button>
-          </Flex>
-          <Button
-            onClick={() => {
-              Router.push("/schoolfilter");
-            }}
-            colorScheme="blue"
-            size="md"
-            leftIcon={<Icon as={Plus} />}
-          >
-            Find The Best Institutions
-          </Button>
-          <br />
-          <br />
-          {/* Desktop Header with New Chat Button */}
-          <VStack spacing={4} mb={8}>
-            <Flex align="center" gap={2} w="full" justify="space-between">
-              <Flex align="center" gap={2}>
-                <Icon as={Sparkles} boxSize={6} color="blue.500" />
-                <Heading size="lg" color="black">
-                  Science & Math Explorer
-                </Heading>
-              </Flex>
+            <VStack spacing={4} p={4}>
               <Button
-                onClick={handleNewChat}
+                leftIcon={<Plus />}
                 colorScheme="blue"
-                size="md"
-                display={{ base: "none", md: "flex" }}
-                leftIcon={<Icon as={Plus} />}
+                variant="solid"
+                w="full"
+                onClick={handleNewChat}
               >
-                New Chat
+                New Consultation
               </Button>
-            </Flex>
-            <Text color="gray.600" textAlign="center">
-              Discover the wonders of science and mathematics with ShikshaFinder
-            </Text>
-          </VStack>
+              <Select
+                placeholder="Select Symptom Category"
+                value={selectedSymptom}
+                onChange={(e) => setSelectedSymptom(e.target.value)}
+                bg="white"
+              >
+                {symptomCategories.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </Select>
+              <Box w="full">
+                <Text fontSize="sm" fontWeight="medium" mb={2}>
+                  Recent Consultations
+                </Text>
+                <VStack spacing={2} align="stretch">
+                  {chatHistory.map((chat) => (
+                    <Tooltip key={chat.id} label={chat.message} placement="right">
+                      <Box
+                        p={2}
+                        bg="gray.50"
+                        borderRadius="md"
+                        cursor="pointer"
+                        _hover={{ bg: "gray.100" }}
+                        onClick={() => {
+                          setCurrentConversation([
+                            {
+                              role: "user",
+                              content: chat.message,
+                              timestamp: chat.created_at,
+                            },
+                            {
+                              role: "assistant",
+                              content: chat.response,
+                              timestamp: chat.created_at,
+                            },
+                          ]);
+                          setSelectedSymptom(chat.symptom_category || "");
+                          setInputText("");
+                          setStreamingMessage("");
+                          setIsStreaming(false);
+                          onClose();
+                        }}
+                      >
+                        <Flex align="center" gap={2}>
+                          {chat.symptom_category && (
+                            <Icon
+                              as={
+                                symptomCategories.find(
+                                  (c) => c.value === chat.symptom_category
+                                )?.icon
+                              }
+                              color="blue.500"
+                            />
+                          )}
+                          <Text fontSize="sm" noOfLines={1}>
+                            {chat.title || chat.message}
+                          </Text>
+                        </Flex>
+                      </Box>
+                    </Tooltip>
+                  ))}
+                </VStack>
+              </Box>
+            </VStack>
+          </GridItem>
 
-          {/* Chat Input */}
-          <Box position="relative" mb={8}>
-            <form onSubmit={handleSubmit}>
-              <VStack spacing={4} align="stretch">
-                {imagePreviewUrl && (
-                  <Box position="relative" width="fit-content">
-                    <Image
-                      src={imagePreviewUrl}
-                      alt="Selected image"
-                      maxH="200px"
-                      rounded="md"
-                    />
-                    <IconButton
-                      icon={<Icon as={X} />}
-                      aria-label="Remove image"
-                      position="absolute"
-                      top={2}
-                      right={2}
-                      size="sm"
-                      colorScheme="red"
-                      onClick={removeSelectedImage}
-                    />
-                  </Box>
-                )}
-                <Flex gap={2}>
-                  <Input
-                    value={inputText}
-                    onChange={handleInputChange}
-                    placeholder="Ask anything about science or math..."
-                    size="md"
-                    bg="white"
-                    color="black"
-                    borderColor="gray.200"
-                    _focus={{ borderColor: "blue.500" }}
-                  />
-                  <label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageSelect}
-                      style={{ display: "none" }}
-                    />
-                    <IconButton
-                      as="span"
-                      aria-label="Upload image"
-                      icon={<Icon as={ImageIcon} />}
-                      colorScheme="gray"
-                      cursor="pointer"
-                    />
-                  </label>
+          <GridItem bg="gray.50" position="relative">
+            <Flex direction="column" h="full">
+              <Flex
+                bg="white"
+                p={4}
+                borderBottom="1px"
+                borderColor="gray.200"
+                justify="space-between"
+                align="center"
+              >
+                <IconButton
+                  icon={<Menu />}
+                  aria-label="Menu"
+                  variant="ghost"
+                  display={{ base: "flex", md: "none" }}
+                  onClick={onOpen}
+                />
+                <Heading size="md" mx={{ base: 4, md: 0 }}>
+                  Ayunetra Health Assistant
+                </Heading>
+                <Flex gap={2} align="center">
+                  {selectedSymptom && (
+                    <Badge colorScheme="blue" fontSize="sm">
+                      {
+                        symptomCategories.find((c) => c.value === selectedSymptom)
+                          ?.label
+                      }
+                    </Badge>
+                  )}
                   <Button
-                    type="submit"
-                    variant="solid"
                     colorScheme="blue"
-                    isDisabled={
-                      loading ||
-                      uploadingImage ||
-                      (!inputText.trim() && !selectedImage)
-                    }
-                    size="md"
+                    size="sm"
+                    onClick={() => setShowHospitalFinder(!showHospitalFinder)}
                   >
-                    {loading || uploadingImage ? (
-                      <CircularProgress
-                        size="24px"
-                        color="black"
-                        isIndeterminate
-                      />
-                    ) : (
-                      <Icon as={Send} stroke="black" />
-                    )}
+                    {showHospitalFinder ? 'Back to Chat' : 'Find Hospitals'}
                   </Button>
                 </Flex>
-              </VStack>
-            </form>
-          </Box>
+              </Flex>
 
-          {/* Response */}
-          <Box flex={1} overflowY="auto" mb={4}>
-            {currentConversation.map((message, index) => (
-              <Box
-                key={index}
-                bg="white"
-                rounded="md"
-                shadow="sm"
-                p={4}
-                mb={4}
-                ml={message.role === "assistant" ? 0 : "auto"}
-                mr={message.role === "assistant" ? "auto" : 0}
-                maxW="80%"
-              >
-                <Flex
-                  gap={3}
-                  direction={{ base: "column", md: "row" }}
-                  align={{ base: "flex-start", md: "start" }}
-                >
-                  <Center
-                    boxSize={8}
-                    bg={message.role === "assistant" ? "blue.500" : "green.500"}
-                    rounded="full"
-                    flexShrink={0}
-                    ml={{ base: 2, md: 0 }}
-                  >
-                    <Icon
-                      as={message.role === "assistant" ? Sparkles : Send}
-                      color="white"
-                    />
-                  </Center>
-                  <Box flex={1} w="full">
-                    <MarkdownBox content={message.content} />
-                    <Text fontSize="xs" color="gray.500" mt={2}>
-                      {new Date(message.timestamp).toLocaleString()}
-                    </Text>
-                  </Box>
-                </Flex>
+              {/* Rest of the chat interface */}
+              
+              <Box flex="1" overflowY="auto" px={4} py={2}>
+                {showHospitalFinder ? (
+                  <HospitalFinder />
+                ) : (
+                  <VStack spacing={4} align="stretch">
+                    {currentConversation.map((msg, index) => (
+                      <Box
+                        key={index}
+                        mb={4}
+                        display="flex"
+                        flexDirection="column"
+                        alignItems={
+                          msg.role === "user" ? "flex-end" : "flex-start"
+                        }
+                      >
+                        <Box
+                          maxW="80%"
+                          bg={msg.role === "user" ? "blue.500" : "white"}
+                          color={msg.role === "user" ? "white" : "black"}
+                          p={3}
+                          borderRadius="lg"
+                          boxShadow="sm"
+                        >
+                          <MarkdownBox content={msg.content} />
+                        </Box>
+                        <Text fontSize="xs" color="gray.500" mt={1}>
+                          {new Date(msg.timestamp).toLocaleTimeString()}
+                        </Text>
+                      </Box>
+                    ))}
+                    {isStreaming && (
+                      <Box
+                        mb={4}
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="flex-start"
+                      >
+                        <Box
+                          maxW="80%"
+                          bg="white"
+                          p={3}
+                          borderRadius="lg"
+                          boxShadow="sm"
+                        >
+                          <MarkdownBox content={streamingMessage} />
+                        </Box>
+                      </Box>
+                    )}
+                  </VStack>
+                )}
               </Box>
-            ))}
 
-            {/* Streaming message */}
-            {isStreaming && streamingMessage && (
-              <Box
-                bg="white"
-                rounded="md"
-                shadow="sm"
-                p={4}
-                mb={4}
-                ml={0}
-                mr="auto"
-                maxW="80%"
-              >
-                <Flex
-                  gap={3}
-                  direction={{ base: "column", md: "row" }}
-                  align={{ base: "flex-start", md: "start" }}
-                >
-                  <Center
-                    boxSize={8}
-                    bg="blue.500"
-                    rounded="full"
-                    flexShrink={0}
-                    ml={{ base: 2, md: 0 }}
-                  >
-                    <Icon as={Sparkles} color="white" />
-                  </Center>
-                  <Box flex={1} w="full">
-                    <MarkdownBox content={streamingMessage} />
-                    <Text fontSize="xs" color="gray.500" mt={2}>
-                      Typing...
-                    </Text>
-                  </Box>
-                </Flex>
+              <Box bg="white" p={4} borderTop="1px" borderColor="gray.200">
+                <form onSubmit={handleSubmit}>
+                  <VStack spacing={4} align="stretch">
+                    {imagePreviewUrl && (
+                      <Box position="relative" width="fit-content">
+                        <Image
+                          src={imagePreviewUrl}
+                          alt="Selected image"
+                          maxH="200px"
+                          rounded="md"
+                        />
+                        <IconButton
+                          icon={<X />}
+                          aria-label="Remove image"
+                          position="absolute"
+                          top={2}
+                          right={2}
+                          size="sm"
+                          colorScheme="red"
+                          onClick={removeSelectedImage}
+                        />
+                      </Box>
+                    )}
+                    <Flex gap={2}>
+                      <Input
+                        value={inputText}
+                        onChange={handleInputChange}
+                        placeholder="Describe your symptoms or health concern..."
+                        size="md"
+                        bg="white"
+                        color="black"
+                        borderColor="gray.200"
+                        _focus={{ borderColor: "blue.500" }}
+                      />
+                      <label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageSelect}
+                          style={{ display: "none" }}
+                        />
+                        <IconButton
+                          as="span"
+                          aria-label="Upload image"
+                          icon={<ImageIcon />}
+                          colorScheme="gray"
+                          cursor="pointer"
+                        />
+                      </label>
+                      <IconButton
+                        icon={<Send />}
+                        aria-label="Send message"
+                        colorScheme="blue"
+                        type="submit"
+                        isLoading={loading || uploadingImage}
+                      />
+                    </Flex>
+                  </VStack>
+                </form>
               </Box>
-            )}
-          </Box>
-
-          {/* Error State */}
-          {summary && summary.includes("error") && (
-            <Flex
-              align="center"
-              gap={2}
-              color="red.600"
-              mt={4}
-              fontSize={{ base: "sm", md: "md" }}
-            >
-              <Icon as={AlertCircle} />
-              <Text>Something went wrong. Please try again.</Text>
             </Flex>
-          )}
-        </Container>
-      </GridItem>
-    </Grid>
+          </GridItem>
+        </Grid>
+      </Container>
+    </>
   );
 };
 

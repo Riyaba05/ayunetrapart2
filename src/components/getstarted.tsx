@@ -7,7 +7,7 @@ import {
 
 function Navnew() {
   return (
-    <Link href="/coaching">
+    <Link href="/chatbot">
       <Button
         rounded={"full"}
         size={"lg"}

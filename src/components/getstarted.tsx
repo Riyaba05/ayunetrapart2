@@ -13,8 +13,11 @@ function Navnew() {
         size={"lg"}
         fontWeight={"normal"}
         px={6}
-        colorScheme="teal"
-        _hover={{ bg: "blue.500" }}
+        bg="beige"
+        color="gray.700"
+        _hover={{ bg: "#E8DCC4" }}
+        border="1px"
+        borderColor="gray.200"
       >
         Let's explore
       </Button>

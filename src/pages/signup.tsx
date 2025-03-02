@@ -86,16 +86,31 @@ export default function SignupCard() {
         align={"center"}
         justify={"center"}
         bg={useColorModeValue("gray.50", "gray.800")}
+        position="relative"
+        overflow="hidden"
       >
-        <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
+        <Box
+          position="absolute"
+          bottom="-80"
+          left="50%"
+          transform="translateX(-50%)"
+          opacity={0.7}
+          zIndex={0}
+          pointerEvents="none"
+        >
+          <Image
+            src="/image.webp"
+            alt="Decorative background"
+            width={1000}
+            height={700}
+            priority
+            style={{
+              objectFit: 'cover',
+            }}
+          />
+        </Box>
+        <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6} position="relative" zIndex={1}>
           <Stack align={"center"} spacing={6}>
-            <Image
-              src="/image.webp"
-              alt="Ayunetra Logo"
-              width={120}
-              height={120}
-              priority
-            />
             <Flex align="center" gap={3}>
               <Icon as={Heart} w={8} h={8} color="blue.500" />
               <Heading fontSize={"4xl"} textAlign={"center"}>

@@ -45,12 +45,12 @@ export default function Home() {
           title="Ayunetra - Your AI-Powered Health Assistant"
           description="Get personalized health recommendations for common ailments like fever, cough, sneezing, and acidity with Ayunetra's AI-powered healthcare assistant."
           openGraph={{
-            url: "/icon-192x192.png",
+            url: "/ai2.png",
             title: "Ayunetra - Intelligent Healthcare Assistant",
             description: "Your 24/7 AI-powered health companion for personalized care recommendations",
             images: [
               {
-                url: "/icon-192x192.png",
+                url: "/ai.png",
                 alt: "Ayunetra Healthcare Assistant",
               },
             ],

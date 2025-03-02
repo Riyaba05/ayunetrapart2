@@ -6,6 +6,7 @@ import { SessionContextProvider, Session } from "@supabase/auth-helpers-react";
 import { useState } from "react";
 import AuthContextProvider from "@/context";
 import Head from "next/head";
+import Navbar from "@/components/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 const supabaseUrl = "https://nsaylbnbmzsbmdrdnoor.supabase.co";
@@ -29,6 +30,7 @@ export default function App({
   return (
     <>
       <Head>
+
         <link rel="manifest" href="/manifest.json" />
         <script
           async
@@ -36,7 +38,7 @@ export default function App({
           crossOrigin="anonymous"
         ></script>
       </Head>
-
+    
       <SessionContextProvider
         supabaseClient={supabaseClient}
         initialSession={pageProps.initialSession}
@@ -44,6 +46,7 @@ export default function App({
         <ChakraProvider theme={theme}>
           <AuthContextProvider>
             <div className={inter.className}>
+              <Navbar />
               <Component {...pageProps} />
             </div>
           </AuthContextProvider>

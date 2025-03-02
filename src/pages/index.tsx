@@ -185,19 +185,19 @@ export default function Home() {
 
             <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} py={20}>
               <Feature
-                icon={"/icons/24-7.svg"}
+                icon={"/ai3.png"}
                 title={"24/7 Availability"}
                 text={"Access health recommendations anytime, anywhere"}
                 colors={colors}
               />
               <Feature
-                icon={"/icons/ai.svg"}
+                icon={"/ai4.png"}
                 title={"AI-Powered"}
                 text={"Get intelligent, personalized health guidance"}
                 colors={colors}
               />
               <Feature
-                icon={"/icons/secure.svg"}
+                icon={"/ai5.png"}
                 title={"Safe & Reliable"}
                 text={"Trusted recommendations for common health concerns"}
                 colors={colors}

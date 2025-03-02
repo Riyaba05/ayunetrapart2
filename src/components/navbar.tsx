@@ -80,16 +80,7 @@ export default function Navbar() {
         >
           {user && user.email ? (
             <>
-              <Button
-                as={Link}
-                href={"/profile"}
-                passHref
-                fontSize={"sm"}
-                fontWeight={400}
-                variant={"link"}
-              >
-                Profile
-              </Button>
+          
 
               <Show above="sm">
                 <Show breakpoint="(min-width: 400px)">
@@ -283,7 +274,7 @@ const MobileNav = () => {
             </Flex>
           </Link>
           <Link
-            href={"/assistant"}
+            href={"/chatbot"}
             style={{ textAlign: "center", textDecoration: "none" }}
           >
             <Flex direction="column" align="center">
@@ -379,7 +370,7 @@ const NAV_ITEMS: Array<NavItem> = [
       {
         label: "Symptom Checker",
         subLabel: "Check your symptoms",
-        href: "/symptoms",
+        href: "/chatbot",
       },
     ],
   },
@@ -389,10 +380,10 @@ const NAV_ITEMS: Array<NavItem> = [
   },
   {
     label: "How It Works",
-    href: "/how-it-works",
+    href: "https://github.com/RudraModi360/Project"
   },
   {
-    label: "Contact",
+    label: "Contact", 
     href: "/contact",
   },
 ];

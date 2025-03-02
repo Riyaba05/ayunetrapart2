@@ -368,8 +368,8 @@ const NAV_ITEMS: Array<NavItem> = [
         href: "/assistant",
       },
       {
-        label: "Symptom Checker",
-        subLabel: "Check your symptoms",
+        label: "healthcare-registration",
+        subLabel: "/healthcare-registration",
         href: "/chatbot",
       },
     ],

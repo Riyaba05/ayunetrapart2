@@ -39,7 +39,7 @@ export default function Login() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "https://ayunetra.com/",
+        redirectTo: "http://localhost:3000/chatbot",
       },
     });
     if (error) {
@@ -126,7 +126,7 @@ export default function Login() {
             borderColor="gray.100"
           >
             <Stack spacing={4}>
-              <Button
+              {/* <Button
                 w={"full"}
                 variant={"outline"}
                 leftIcon={<FcGoogle />}
@@ -140,12 +140,12 @@ export default function Login() {
                 <Center>
                   <Text>Sign in with Google</Text>
                 </Center>
-              </Button>
+              </Button> */}
 
               <Flex align="center" gap={2}>
-                <Box flex={1} h="1px" bg="gray.200" />
+                {/* <Box flex={1} h="1px" bg="gray.200" />
                 <Text color="gray.500">or</Text>
-                <Box flex={1} h="1px" bg="gray.200" />
+                <Box flex={1} h="1px" bg="gray.200" /> */}
               </Flex>
 
               <FormControl id="email" isRequired>

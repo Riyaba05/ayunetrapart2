@@ -34,6 +34,7 @@ import {
   Select,
   Badge,
   Tooltip,
+  Link,
 } from "@chakra-ui/react";
 import {
   AlertCircle,
@@ -48,6 +49,8 @@ import {
   Heart,
   Thermometer,
   Stethoscope,
+  ExternalLink,
+  Youtube,
 } from "lucide-react";
 import supabase from "../../supabase";
 import { NextSeo } from "next-seo";
@@ -86,10 +89,21 @@ interface ChatMessage {
   symptom_category?: string;
 }
 
+interface ApiResponse {
+  answer: string;
+  user_id: string;
+  google_links: string[];
+  youtube_videos: string[];
+}
+
 interface ConversationMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: string;
+  links?: {
+    google?: string[];
+    youtube?: string[];
+  };
 }
 
 const Chatbot = () => {
@@ -201,11 +215,6 @@ const Chatbot = () => {
     }
   }, [user?.id]);
 
-  interface ApiResponse {
-    messages: { content: string }[];
-    error?: string;
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim() && !selectedImage) return;
@@ -235,111 +244,58 @@ const Chatbot = () => {
       };
       setCurrentConversation((prev) => [...prev, userMessage]);
 
-      const response = await fetch("/api/getanswer", {
+      const response = await fetch("https://projectuvicorn-localhost-server-main-app.onrender.com/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify({
-          msg: inputText,
-          imageUrl: imageUrl,
-          conversationHistory: currentConversation,
-          symptomCategory: selectedSymptom,
-        }),
+          message: inputText,
+          user_id: user.id
+        })
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error("API Error:", errorData);
         throw new Error("Failed to get response");
-      }
+      } 
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error("No reader available");
-      }
+      // Get the response as JSON directly
+      const responseData = await response.json() as ApiResponse;
+      console.log('Response Data:', responseData);
 
-      let accumulatedResponse = "";
-      let isComplete = false;
+      // Clean YouTube URLs before creating the message
+      const cleanYoutubeUrls = responseData.youtube_videos.map(url => 
+        url.replace(/\\u0026/g, '&').split('\\u0026')[0] // Take only the main part of the URL
+      );
 
-      // Create a promise that resolves when streaming is complete
-      const streamPromise = new Promise<string>(async (resolve, reject) => {
-        try {
-          while (!isComplete) {
-            const { done, value } = await reader.read();
-
-            if (done) {
-              isComplete = true;
-              break;
-            }
-
-            // Decode the stream chunk and process it
-            const chunk = new TextDecoder().decode(value);
-            const lines = chunk
-              .split("\n")
-              .filter((line) => line.trim() !== "");
-
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                try {
-                  if (line.includes("[DONE]")) {
-                    isComplete = true;
-                    break;
-                  }
-                  const data = JSON.parse(line.slice(6));
-                  if (data.content) {
-                    accumulatedResponse += data.content;
-                    setStreamingMessage(accumulatedResponse);
-                  }
-                } catch (e) {
-                  console.error("Error parsing chunk:", e);
-                  continue;
-                }
-              }
-            }
-          }
-          resolve(
-            accumulatedResponse ||
-              "Sorry, there was an error generating the response."
-          );
-        } catch (error) {
-          console.error("Stream reading error:", error);
-          reject(error);
-        } finally {
-          reader.releaseLock();
+      // Create assistant message with the response
+      const assistantMessage: ConversationMessage = {
+        role: "assistant",
+        content: responseData.answer,
+        timestamp: new Date().toISOString(),
+        links: {
+          google: responseData.google_links,
+          youtube: cleanYoutubeUrls
         }
-      });
+      };
 
-      try {
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("Response timeout")), 60000);
-        });
+      // Update conversation and clear input
+      setCurrentConversation(prev => [...prev, assistantMessage]);
+      await saveResponse(inputText, responseData.answer);
+      setStreamingMessage("");
+      removeSelectedImage();
+      setInputText("");
 
-        const finalResponse = (await Promise.race([
-          streamPromise,
-          timeoutPromise,
-        ])) as string;
-
-        const assistantMessage: ConversationMessage = {
-          role: "assistant",
-          content: finalResponse,
-          timestamp: new Date().toISOString(),
-        };
-
-        setCurrentConversation((prev) => [...prev, assistantMessage]);
-        await saveResponse(inputText, finalResponse);
-
-        removeSelectedImage();
-        setInputText("");
-      } catch (error) {
-        console.error("Error during request:", error);
-        setStreamingMessage("An error occurred. Please try again later.");
-      } finally {
-        setLoading(false);
-        setIsStreaming(false);
-        setUploadingImage(false);
-      }
     } catch (error) {
       console.error("Error during request:", error);
       setStreamingMessage("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
+      setIsStreaming(false);
+      setUploadingImage(false);
     }
   };
 
@@ -358,7 +314,7 @@ const Chatbot = () => {
   const ChatSidebarContent = () => (
     <VStack align="stretch" h="100%" spacing={0} bg="white">
       {/* Header Section */}
-      <Box p={4} borderBottom="1px" borderColor="gray.200">
+      <Box p={4} borderBottom="1px" borderColor="gray.800">
         <Heading size="md" color="gray.700">
           Chat History
         </Heading>
@@ -379,7 +335,7 @@ const Chatbot = () => {
             width: "6px",
           },
           "&::-webkit-scrollbar-thumb": {
-            background: "gray.200",
+            background: "gray.800",
             borderRadius: "24px",
           },
         }}
@@ -390,7 +346,7 @@ const Chatbot = () => {
               <Spinner
                 thickness="4px"
                 speed="0.65s"
-                emptyColor="gray.200"
+                emptyColor="gray.800"
                 color="blue.500"
                 size="lg"
               />
@@ -420,11 +376,11 @@ const Chatbot = () => {
               rounded="lg"
               cursor="pointer"
               borderWidth="1px"
-              borderColor="gray.200"
+              borderColor="gray.800"
               transition="all 0.2s"
               _hover={{
                 bg: "blue.50",
-                borderColor: "blue.200",
+                borderColor: "blue.800",
                 transform: "translateY(-1px)",
                 shadow: "md",
               }}
@@ -508,7 +464,7 @@ const Chatbot = () => {
           <Spinner
             thickness="4px"
             speed="0.65s"
-            emptyColor="gray.200"
+            emptyColor="gray.800"
             color="blue.500"
             size="xl"
           />
@@ -532,23 +488,25 @@ const Chatbot = () => {
       />
       <Container maxW="full" h="100vh" p={0}>
         <Grid
-          templateColumns={{ base: "1fr", md: "250px 1fr" }}
+          templateColumns={{ base: "1fr", md: "280px 1fr" }}
           h="full"
           gap={0}
         >
           <GridItem
-            bg="white"
+            bg="gray.50"
             borderRight="1px"
-            borderColor="gray.200"
+            borderColor="gray.100"
             display={{ base: isOpen ? "block" : "none", md: "block" }}
           >
-            <VStack spacing={4} p={4}>
+            <VStack spacing={4} p={6}>
               <Button
-                leftIcon={<Plus />}
+                leftIcon={<Plus size={16} />}
                 colorScheme="blue"
-                variant="solid"
+                variant="outline"
                 w="full"
                 onClick={handleNewChat}
+                size="sm"
+                borderRadius="full"
               >
                 New Consultation
               </Button>
@@ -557,6 +515,9 @@ const Chatbot = () => {
                 value={selectedSymptom}
                 onChange={(e) => setSelectedSymptom(e.target.value)}
                 bg="white"
+                size="sm"
+                borderRadius="md"
+                borderColor="gray.800"
               >
                 {symptomCategories.map((category) => (
                   <option key={category.value} value={category.value}>
@@ -565,18 +526,19 @@ const Chatbot = () => {
                 ))}
               </Select>
               <Box w="full">
-                <Text fontSize="sm" fontWeight="medium" mb={2}>
+                <Text fontSize="xs" fontWeight="medium" mb={3} color="gray.600" textTransform="uppercase" letterSpacing="wide">
                   Recent Consultations
                 </Text>
                 <VStack spacing={2} align="stretch">
                   {chatHistory.map((chat) => (
                     <Tooltip key={chat.id} label={chat.message} placement="right">
                       <Box
-                        p={2}
-                        bg="gray.50"
-                        borderRadius="md"
+                        p={3}
+                        bg="white"
+                        borderRadius="lg"
                         cursor="pointer"
-                        _hover={{ bg: "gray.100" }}
+                        transition="all 0.2s"
+                        _hover={{ bg: "blue.50" }}
                         onClick={() => {
                           setCurrentConversation([
                             {
@@ -606,9 +568,10 @@ const Chatbot = () => {
                                 )?.icon
                               }
                               color="blue.500"
+                              fontSize="sm"
                             />
                           )}
-                          <Text fontSize="sm" noOfLines={1}>
+                          <Text fontSize="sm" noOfLines={1} color="gray.700">
                             {chat.title || chat.message}
                           </Text>
                         </Flex>
@@ -620,29 +583,31 @@ const Chatbot = () => {
             </VStack>
           </GridItem>
 
-          <GridItem bg="gray.50" position="relative">
+          <GridItem bg="white" position="relative">
             <Flex direction="column" h="full">
               <Flex
                 bg="white"
-                p={4}
+                px={6}
+                py={4}
                 borderBottom="1px"
-                borderColor="gray.200"
+                borderColor="gray.100"
                 justify="space-between"
                 align="center"
               >
                 <IconButton
-                  icon={<Menu />}
+                  icon={<Menu size={18} />}
                   aria-label="Menu"
                   variant="ghost"
                   display={{ base: "flex", md: "none" }}
                   onClick={onOpen}
+                  size="sm"
                 />
-                <Heading size="md" mx={{ base: 4, md: 0 }}>
+                <Heading size="sm" mx={{ base: 4, md: 0 }} color="gray.700">
                   Ayunetra Health Assistant
                 </Heading>
                 <Flex gap={2} align="center">
                   {selectedSymptom && (
-                    <Badge colorScheme="blue" fontSize="sm">
+                    <Badge colorScheme="blue" fontSize="xs" borderRadius="full" px={3}>
                       {
                         symptomCategories.find((c) => c.value === selectedSymptom)
                           ?.label
@@ -651,25 +616,24 @@ const Chatbot = () => {
                   )}
                   <Button
                     colorScheme="blue"
-                    size="sm"
+                    size="xs"
                     onClick={() => setShowHospitalFinder(!showHospitalFinder)}
+                    variant="ghost"
+                    borderRadius="full"
                   >
                     {showHospitalFinder ? 'Back to Chat' : 'Find Hospitals'}
                   </Button>
                 </Flex>
               </Flex>
 
-              {/* Rest of the chat interface */}
-              
-              <Box flex="1" overflowY="auto" px={4} py={2}>
+              <Box flex="1" overflowY="auto" px={6} py={4} bg="gray.50">
                 {showHospitalFinder ? (
                   <HospitalFinder />
                 ) : (
-                  <VStack spacing={4} align="stretch">
+                  <VStack spacing={6} align="stretch">
                     {currentConversation.map((msg, index) => (
                       <Box
                         key={index}
-                        mb={4}
                         display="flex"
                         flexDirection="column"
                         alignItems={
@@ -679,21 +643,20 @@ const Chatbot = () => {
                         <Box
                           maxW="80%"
                           bg={msg.role === "user" ? "blue.500" : "white"}
-                          color={msg.role === "user" ? "white" : "black"}
-                          p={3}
-                          borderRadius="lg"
+                          color={msg.role === "user" ? "white" : "gray.700"}
+                          p={4}
+                          borderRadius="2xl"
                           boxShadow="sm"
                         >
-                          <MarkdownBox content={msg.content} />
+                          <MarkdownBox content={msg.content} links={msg.links} />
                         </Box>
-                        <Text fontSize="xs" color="gray.500" mt={1}>
-                          {new Date(msg.timestamp).toLocaleTimeString()}
+                        <Text fontSize="xs" color="gray.500" mt={2} px={2}>
+                          {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </Text>
                       </Box>
                     ))}
                     {isStreaming && (
                       <Box
-                        mb={4}
                         display="flex"
                         flexDirection="column"
                         alignItems="flex-start"
@@ -701,8 +664,8 @@ const Chatbot = () => {
                         <Box
                           maxW="80%"
                           bg="white"
-                          p={3}
-                          borderRadius="lg"
+                          p={4}
+                          borderRadius="2xl"
                           boxShadow="sm"
                         >
                           <MarkdownBox content={streamingMessage} />
@@ -713,7 +676,7 @@ const Chatbot = () => {
                 )}
               </Box>
 
-              <Box bg="white" p={4} borderTop="1px" borderColor="gray.200">
+              <Box bg="white" p={6} borderTop="1px" borderColor="gray.100">
                 <form onSubmit={handleSubmit}>
                   <VStack spacing={4} align="stretch">
                     {imagePreviewUrl && (
@@ -721,18 +684,20 @@ const Chatbot = () => {
                         <Image
                           src={imagePreviewUrl}
                           alt="Selected image"
-                          maxH="200px"
-                          rounded="md"
+                          maxH="150px"
+                          rounded="lg"
                         />
                         <IconButton
-                          icon={<X />}
+                          icon={<X size={14} />}
                           aria-label="Remove image"
                           position="absolute"
                           top={2}
                           right={2}
-                          size="sm"
+                          size="xs"
                           colorScheme="red"
+                          variant="solid"
                           onClick={removeSelectedImage}
+                          borderRadius="full"
                         />
                       </Box>
                     )}
@@ -742,10 +707,11 @@ const Chatbot = () => {
                         onChange={handleInputChange}
                         placeholder="Describe your symptoms or health concern..."
                         size="md"
-                        bg="white"
-                        color="black"
-                        borderColor="gray.200"
-                        _focus={{ borderColor: "blue.500" }}
+                        bg="gray.50"
+                        color="gray.700"
+                        border="none"
+                        _focus={{ bg: "gray.100", boxShadow: "none" }}
+                        borderRadius="full"
                       />
                       <label>
                         <input
@@ -757,17 +723,19 @@ const Chatbot = () => {
                         <IconButton
                           as="span"
                           aria-label="Upload image"
-                          icon={<ImageIcon />}
-                          colorScheme="gray"
+                          icon={<ImageIcon size={18} />}
+                          variant="ghost"
                           cursor="pointer"
+                          borderRadius="full"
                         />
                       </label>
                       <IconButton
-                        icon={<Send />}
+                        icon={<Send size={18} />}
                         aria-label="Send message"
                         colorScheme="blue"
                         type="submit"
                         isLoading={loading || uploadingImage}
+                        borderRadius="full"
                       />
                     </Flex>
                   </VStack>
@@ -781,21 +749,96 @@ const Chatbot = () => {
   );
 };
 
-const MarkdownBox = ({ content }: { content: string }) => {
+const MarkdownBox = ({ content, links }: { content: string; links?: { google?: string[]; youtube?: string[] } }) => {
+  // Function to clean YouTube URL and get video ID
+  const getYouTubeVideoId = (url: string) => {
+    try {
+      const cleanUrl = url.replace(/\\u0026/g, '&');
+      const urlObj = new URL(cleanUrl);
+      const searchParams = new URLSearchParams(urlObj.search);
+      return urlObj.hostname === 'www.youtube.com' ? searchParams.get('v') : null;
+    } catch (e) {
+      console.error('Error parsing YouTube URL:', e);
+      return null;
+    }
+  };
+
   return (
-    <Box
-      bg="white"
-      paddingInline={2}
-      rounded="md"
-      fontSize={{ base: "sm", md: "md" }}
-      color="black"
-    >
-      <ReactMarkdown
-        components={markdownComponents}
-        remarkPlugins={[remarkGfm]}
-      >
+    <Box fontSize={{ base: "sm", md: "sm" }} color="inherit">
+      <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm]}>
         {content}
       </ReactMarkdown>
+      
+      {links && (
+        <VStack align="stretch" mt={4} spacing={3}>
+          {links.google && links.google.length > 0 && (
+            <Box>
+              <Text fontWeight="medium" mb={2} color="gray.700">
+                Helpful Resources:
+              </Text>
+              <VStack align="stretch" spacing={2}>
+                {links.google.map((link, index) => (
+                  <Link
+                    key={index}
+                    href={link}
+                    isExternal
+                    color="blue.500"
+                    fontSize="sm"
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                  >
+                    <ExternalLink size={14} />
+                    {new URL(link).hostname.replace('www.', '')}
+                  </Link>
+                ))}
+              </VStack>
+            </Box>
+          )}
+          
+          {links.youtube && links.youtube.length > 0 && (
+            <Box>
+              <Text fontWeight="medium" mb={2} color="gray.700">
+                Related Videos:
+              </Text>
+              {/* Embed first video if available */}
+              {links.youtube[0] && getYouTubeVideoId(links.youtube[0]) && (
+                <Box mb={4} borderRadius="lg" overflow="hidden">
+                  <iframe
+                    width="100%"
+                    height="215"
+                    src={`https://www.youtube.com/embed/${getYouTubeVideoId(links.youtube[0])}`}
+                    title="YouTube video"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </Box>
+              )}
+              <VStack align="stretch" spacing={2}>
+                {links.youtube.map((link, index) => {
+                  const videoId = getYouTubeVideoId(link);
+                  return videoId ? (
+                    <Link
+                      key={index}
+                      href={`https://www.youtube.com/watch?v=${videoId}`}
+                      isExternal
+                      color="red.500"
+                      fontSize="sm"
+                      display="flex"
+                      alignItems="center"
+                      gap={2}
+                    >
+                      <Youtube size={14} />
+                      YouTube Video {index + 1}
+                    </Link>
+                  ) : null;
+                })}
+              </VStack>
+            </Box>
+          )}
+        </VStack>
+      )}
     </Box>
   );
 };

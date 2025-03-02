@@ -30,7 +30,7 @@ const HealthcareFacilities: React.FC<HealthcareFacilitiesProps> = ({ facilities 
             key={index}
             className={`flex items-start ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
           >
-            <LineWithDot />
+            
             <div 
               className={`flex-grow bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 ${
                 index % 2 === 0 ? 'mr-8' : 'ml-8'

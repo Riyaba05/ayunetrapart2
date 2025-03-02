@@ -365,18 +365,18 @@ const NAV_ITEMS: Array<NavItem> = [
       {
         label: "AI Assistant",
         subLabel: "24/7 health guidance",
-        href: "/assistant",
+        href: "/chatbot",
       },
       {
         label: "healthcare-registration",
         subLabel: "/healthcare-registration",
-        href: "/chatbot",
+        href: "/healthcare-registration"
       },
     ],
   },
   {
     label: "About Us",
-    href: "/about",
+    href: "/aboutus",
   },
   {
     label: "How It Works",

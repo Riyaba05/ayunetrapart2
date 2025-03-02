@@ -1,4 +1,4 @@
-import { ChakraProvider, extendTheme, ThemeConfig } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme, LightMode, ThemeConfig } from "@chakra-ui/react";
 import { Inter } from "next/font/google";
 import { type AppProps } from "next/app";
 import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
@@ -22,8 +22,8 @@ export default function App({
     createPagesBrowserClient({ supabaseUrl, supabaseKey })
   );
   const config: ThemeConfig = {
-    initialColorMode: "system",
-    useSystemColorMode: true,
+    initialColorMode: "light",
+    useSystemColorMode: false
   };
 
   const theme = extendTheme({ config });

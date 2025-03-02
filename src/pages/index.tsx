@@ -175,9 +175,9 @@ export default function Home() {
                     alt={"Ayunetra Hero Image"}
                     objectFit={"cover"}
                     style={{ margin: "0 auto" }}
-                    height={300}
-                    src={"/healthcare-hero.jpg"}
-                    width={300}
+                    height={350}
+                    src={"/image_ayur.jpg"}
+                    width={550}
                   />
                 </Box>
               </Flex>

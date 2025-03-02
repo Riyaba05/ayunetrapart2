@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+import Image from "next/image";
 import supabase from "../../supabase";
 import {
   Flex,
@@ -88,6 +89,13 @@ export default function SignupCard() {
       >
         <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
           <Stack align={"center"} spacing={6}>
+            <Image
+              src="/image.webp"
+              alt="Ayunetra Logo"
+              width={120}
+              height={120}
+              priority
+            />
             <Flex align="center" gap={3}>
               <Icon as={Heart} w={8} h={8} color="blue.500" />
               <Heading fontSize={"4xl"} textAlign={"center"}>
